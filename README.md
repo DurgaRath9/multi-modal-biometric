@@ -6,7 +6,7 @@ A production-ready ML infrastructure for iris + fingerprint biometric recognitio
 
 A scalable multimodal training pipeline for biometric recognition (iris + fingerprint) with production-quality Python engineering, efficient data handling, and MLOps best practices.
 
-Dataset: [Multimodal Iris & Fingerprint Biometric Data](https://www.kaggle.com/datasets/ninadmehendale/multimodal-iris-fingerprint-biometric-data) — 45 subjects, 900 images across iris scans (left/right eye) and fingerprint scans.
+Dataset: [Multimodal Iris & Fingerprint Biometric Data](https://www.kaggle.com/datasets/ninadmehendale/multimodal-iris-fingerprint-biometric-data) - 45 subjects, 900 images across iris scans (left/right eye) and fingerprint scans.
 
 ## Training Results
 
@@ -33,7 +33,7 @@ Epoch  Train Loss  Val Loss  Top1    Top5    ROC-AUC   EER
  20      1.869      2.352   34.4%   73.3%    0.919     0.169
 ```
 
-> **Note**: Top-1 accuracy is modest due to 45-class classification with only ~8 train samples per class. The high ROC-AUC (0.92) and low EER (0.17) confirm the model discriminates well between identities — the biometric-standard metrics that matter.
+> **Note**: Top-1 accuracy is modest due to 45-class classification with only ~8 train samples per class. The high ROC-AUC (0.92) and low EER (0.17) confirm the model discriminates well between identities - the biometric-standard metrics that matter.
 
 ### TensorBoard
 
@@ -66,16 +66,16 @@ flowchart TD
 
 ## Key Features
 
-- **Gated Attention Fusion** — Learns per-sample modality importance instead of treating iris and fingerprint equally. Configurable: `model.fusion.strategy=attention|concat`
-- **Biometric-Standard Metrics** — EER (Equal Error Rate), ROC-AUC, Top-5 accuracy, F1-macro, confusion matrix
-- **Mixed Precision Training (AMP)** — `torch.amp` for 2x throughput on GPU
-- **Cosine Annealing LR** — Smooth learning rate decay for better convergence
-- **Early Stopping** — Tracks best validation loss, saves `best_model.pt`, stops after N epochs without improvement
-- **TensorBoard Logging** — Loss curves, accuracy, F1, AUC, EER, LR per epoch
-- **Grad-CAM Explainability** — Visualize which image regions drive predictions
-- **Arrow Metadata Cache** — PyArrow-based metadata table persisted as Parquet for fast dataset introspection
-- **Ray Parallel Preprocessing** — Scales from laptop to cluster; graceful fallback to sequential
-- **Interactive Demo** — Gradio app for live inference
+- **Gated Attention Fusion** - Learns per-sample modality importance instead of treating iris and fingerprint equally. Configurable: `model.fusion.strategy=attention|concat`
+- **Biometric-Standard Metrics** - EER (Equal Error Rate), ROC-AUC, Top-5 accuracy, F1-macro, confusion matrix
+- **Mixed Precision Training (AMP)** - `torch.amp` for 2x throughput on GPU
+- **Cosine Annealing LR** - Smooth learning rate decay for better convergence
+- **Early Stopping** - Tracks best validation loss, saves `best_model.pt`, stops after N epochs without improvement
+- **TensorBoard Logging** - Loss curves, accuracy, F1, AUC, EER, LR per epoch
+- **Grad-CAM Explainability** - Visualize which image regions drive predictions
+- **Arrow Metadata Cache** - PyArrow-based metadata table persisted as Parquet for fast dataset introspection
+- **Ray Parallel Preprocessing** - Scales from laptop to cluster; graceful fallback to sequential
+- **Interactive Demo** - Gradio app for live inference
 
 ## Project Structure
 
@@ -93,7 +93,7 @@ graph LR
             end
         end
         subgraph src["src/"]
-            subgraph data_mod["data/ — Data pipeline"]
+            subgraph data_mod["data/ - Data pipeline"]
                 dataset_py[dataset.py]
                 kaggle_loader_py[kaggle_loader.py]
                 transforms_py[transforms.py]
@@ -101,13 +101,13 @@ graph LR
                 cache_py[cache.py]
                 loaders_py[loaders.py]
             end
-            subgraph models_mod["models/ — Model definitions"]
+            subgraph models_mod["models/ - Model definitions"]
                 backbones_py[backbones.py]
                 encoder_py[encoder.py]
                 fusion_py[fusion.py]
                 mm_model_py[multimodal_model.py]
             end
-            subgraph training_mod["training/ — Training pipeline"]
+            subgraph training_mod["training/ - Training pipeline"]
                 trainer_py[trainer.py]
                 metrics_py[metrics.py]
                 repro_py[reproducibility.py]
@@ -120,15 +120,15 @@ graph LR
                 logger_py[logger.py]
             end
         end
-        tests["tests/ — 47 unit tests"]
-        docs["docs/ — Documentation"]
-        demo[demo.py — Gradio demo]
-        env[env.dev.txt — Credentials gitignored]
+        tests["tests/ - 47 unit tests"]
+        docs["docs/ - Documentation"]
+        demo[demo.py - Gradio demo]
+        env[env.dev.txt - Credentials gitignored]
         ci[".github/workflows/ci.yml"]
         dockerfile[Dockerfile]
         makefile[Makefile]
         pyproject[pyproject.toml]
-        train_entry[train.py — Entry point]
+        train_entry[train.py - Entry point]
     end
 ```
 
@@ -137,7 +137,7 @@ graph LR
 ### Prerequisites
 
 - Python 3.10+
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) — fast Python package manager
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) - fast Python package manager
 
 ### Installation
 
@@ -145,6 +145,7 @@ graph LR
 # Clone and install
 git clone <repo-url>
 cd multi-modal-biometric
+uv venv --python 3.12
 uv sync --all-extras
 
 # Option 1: Automatic download from Kaggle (requires credentials)
@@ -185,13 +186,17 @@ uv run python train.py model.fusion.strategy=concat
 
 # Use ResNet18 backbone
 uv run python train.py model.iris_encoder.backbone=resnet18 model.fingerprint_encoder.backbone=resnet18
+
+# Complete can be like below
+uv run python train.py data.kaggle.enabled=true training.epochs=10 training.batch_size=16 training.device=cpu model.fusion.strategy=concat model.iris_encoder.backbone=resnet18 model.fingerprint_encoder.backbone=resnet18
 ```
 
 ### Monitoring
 
 ```bash
-tensorboard --logdir runs/
+uv run tensorboard --logdir runs/
 ```
+![TensorBoard](screenshots/Tensorboard.jpg)
 
 ### Inference & Visualization
 
