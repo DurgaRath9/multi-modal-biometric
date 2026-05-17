@@ -1,0 +1,10 @@
+root_dir: "configs/data/IFData/IRIS and FINGERPRINT DATASET"
+image_size: 128
+train_split: 0.8
+num_ray_workers: 4
+
+# Kaggle auto-download (credentials loaded from env.dev.txt at project root)
+kaggle:
+  enabled: true
+  dataset_id: "ninadmehendale/multimodal-iris-fingerprint-biometric-data"
+  download_dir: "configs/data/IFData"  # where kagglehub extracts the zip

@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data
+/data/
+configs/data/*/
+*.csv
+*.parquet
+*.arrow
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Logs
+logs/
+*.log
+outputs/
+runs/
+metadata_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Pytest
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Checkpoints
+checkpoints/
+*.pt
+*.pth
+
+# Secrets
+env.*.txt
+.env

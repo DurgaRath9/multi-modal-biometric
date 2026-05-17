@@ -1,0 +1,17 @@
+iris_encoder:
+  in_channels: 3
+  embedding_dim: 128
+  backbone: simple_cnn      # simple_cnn | resnet18
+  pretrained: true
+
+fingerprint_encoder:
+  in_channels: 3
+  embedding_dim: 128
+  backbone: simple_cnn      # simple_cnn | resnet18
+  pretrained: true
+
+fusion:
+  strategy: attention  # concat | attention
+  hidden_dim: 128
+  num_classes: 45
+  dropout: 0.3
