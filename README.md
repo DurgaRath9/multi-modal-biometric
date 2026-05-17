@@ -35,6 +35,11 @@ Epoch  Train Loss  Val Loss  Top1    Top5    ROC-AUC   EER
 
 > **Note**: Top-1 accuracy is modest due to 45-class classification with only ~8 train samples per class. The high ROC-AUC (0.92) and low EER (0.17) confirm the model discriminates well between identities - the biometric-standard metrics that matter.
 
+### TensorBoard
+
+```bash
+tensorboard --logdir runs/
+```
 
 ## Architecture
 
@@ -140,6 +145,7 @@ graph LR
 # Clone and install
 git clone <repo-url>
 cd multi-modal-biometric
+uv venv --python 3.12
 uv sync --all-extras
 
 # Option 1: Automatic download from Kaggle (requires credentials)
@@ -185,9 +191,8 @@ uv run python train.py model.iris_encoder.backbone=resnet18 model.fingerprint_en
 ### Monitoring
 
 ```bash
-uv run tensorboard --logdir runs/
+tensorboard --logdir runs/
 ```
-
 ![TensorBoard](screenshots/Tensorboard.jpg)
 
 ### Inference & Visualization
@@ -218,18 +223,14 @@ This opens a web UI at **http://localhost:7860** in your browser.
 - Upload an iris scan image (`.bmp`, `.jpg`, `.png`)
 - Upload a fingerprint scan image (`.bmp`, `.jpg`, `.png`)
 
-![Interactive UI : To Upload files](screenshots/UI_Prediction_1.jpg)
-
 **Output:** Top-5 predicted identities ranked by confidence score.
-
-![Interactive UI : Predicted Result](screenshots/UI_Prediction_2.jpg)
 
 > The demo loads `checkpoints/best_model.pt` automatically. Train the model first or use a pre-existing checkpoint.
 
 ### Testing
 
 ```bash
-uv run pytest tests/ -v
+uv run pytest tests/ -v   # 47 tests
 ```
 
 ### Formatting
