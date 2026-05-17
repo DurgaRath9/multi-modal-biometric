@@ -19,7 +19,7 @@
 
 | Pros | Cons |
 |------|------|
-| Columnar format — fast reads and filters | Serialization overhead for tiny datasets |
+| Columnar format - fast reads and filters | Serialization overhead for tiny datasets |
 | Zero-copy reads in many cases | Additional dependency |
 | Parquet persistence for cache reuse | Overkill for 1081 files |
 | Interoperable with Pandas, Spark, etc. | |
@@ -31,7 +31,7 @@
 | Pros | Cons |
 |------|------|
 | Fast to train, easy to debug | Lower accuracy ceiling |
-| Clear architecture — nothing to hide | Less "impressive" on paper |
+| Clear architecture - nothing to hide | Less "impressive" on paper |
 | Focus stays on infrastructure | |
 
 **Decision**: The focus is on pipeline correctness and extensibility over raw model accuracy. A simple CNN validates the end-to-end pipeline; swapping to ResNet is a one-line config change.
@@ -54,7 +54,7 @@
 | Outperforms naive concatenation | Gate weights not directly interpretable |
 | Softmax gate ensures stable gradients | |
 
-**Decision**: The gated attention fusion learns a 2-element softmax weight vector per sample, deciding how much to trust iris vs. fingerprint. This is the right inductive bias for biometrics — image quality varies per sample, so a fixed 50/50 split is suboptimal. The concat baseline is retained in the registry for comparison.
+**Decision**: The gated attention fusion learns a 2-element softmax weight vector per sample, deciding how much to trust iris vs. fingerprint. This is the right inductive bias for biometrics - image quality varies per sample, so a fixed 50/50 split is suboptimal. The concat baseline is retained in the registry for comparison.
 
 **Result**: Both strategies are available via `model.fusion.strategy=attention|concat`.
 

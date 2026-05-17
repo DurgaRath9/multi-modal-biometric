@@ -20,7 +20,7 @@ flowchart LR
 |--------|---------------|-----------|
 | `data/kaggle_loader.py` | Load credentials from `env.dev.txt`, download dataset from Kaggle if needed | `ensure_dataset()` → `str` (dataset path) |
 | `data/dataset.py` | Scan filesystem, pair modalities, lazy-load images | `__getitem__` returns `{iris, fingerprint, label}` |
-| `data/preprocessing.py` | Resize, normalize, extract metadata in parallel | `preprocess_single_image()` — stateless, Ray-compatible |
+| `data/preprocessing.py` | Resize, normalize, extract metadata in parallel | `preprocess_single_image()` - stateless, Ray-compatible |
 | `data/cache.py` | Build and persist Arrow metadata tables | `build_metadata_table()` → `pa.Table` |
 | `data/loaders.py` | Create train/val DataLoaders with optimal settings | `create_dataloaders()` → `(DataLoader, DataLoader)` |
 | `data/transforms.py` | Image augmentation (train) and normalization (eval) | `get_train_transforms()` / `get_eval_transforms()` |
@@ -37,8 +37,8 @@ flowchart LR
 
 The model supports two fusion strategies, selectable via `model.fusion.strategy`:
 
-- **`concat`** — Concatenates iris + fingerprint embeddings, classifies via MLP. Simple baseline.
-- **`attention`** — Gated attention fusion: a learned gate network outputs per-sample softmax weights over both modalities. The fused representation is a weighted combination, allowing the model to rely more on whichever modality is more informative for each input.
+- **`concat`** - Concatenates iris + fingerprint embeddings, classifies via MLP. Simple baseline.
+- **`attention`** - Gated attention fusion: a learned gate network outputs per-sample softmax weights over both modalities. The fused representation is a weighted combination, allowing the model to rely more on whichever modality is more informative for each input.
 
 ### Configuration System
 

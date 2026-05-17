@@ -78,7 +78,7 @@ def _load_model() -> MultiModalBiometricModel:
             "Loaded model from %s (backbone=%s, fusion=%s)", ckpt_path, backbone, fusion_strategy
         )
     else:
-        logger.warning("No checkpoint found at %s — using untrained model", ckpt_path)
+        logger.warning("No checkpoint found at %s - using untrained model", ckpt_path)
         model = MultiModalBiometricModel(num_classes=NUM_CLASSES, fusion_strategy="attention")
 
     model.to(DEVICE)

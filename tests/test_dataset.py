@@ -116,7 +116,7 @@ class TestTransforms:
 
     def test_normalized_range(self):
         tf = get_eval_transforms(image_size=64)
-        # Use a white image (255) — after ImageNet normalization, values will exceed 1.0
+        # Use a white image (255) - after ImageNet normalization, values will exceed 1.0
         img = Image.fromarray(np.ones((64, 64, 3), dtype=np.uint8) * 255)
         result = tf(img)
         # After ImageNet normalization of a white image, values should exceed [0,1] range
