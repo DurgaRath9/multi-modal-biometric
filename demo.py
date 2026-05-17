@@ -29,17 +29,57 @@ NUM_CLASSES = 45
 DEVICE = torch.device("cpu")
 
 
+def _detect_backbone(state_dict: dict) -> str:
+    """Infer backbone type from checkpoint state_dict keys."""
+    for key in state_dict:
+        if ".base.layer1." in key:
+            return "resnet18"
+    return "simple_cnn"
+
+
+def _detect_fusion_strategy(state_dict: dict) -> str:
+    """Infer fusion strategy from checkpoint state_dict keys."""
+    for key in state_dict:
+        if key.startswith("fusion.gate.") or key.startswith("fusion.iris_proj."):
+            return "attention"
+    return "concat"
+
+
+def _detect_num_classes(state_dict: dict, fusion_strategy: str) -> int:
+    """Infer num_classes from the final classifier layer in the checkpoint."""
+    # For concat: fusion.classifier.3.weight; for attention: fusion.classifier.2.weight
+    for key in sorted(state_dict, reverse=True):
+        if key.startswith("fusion.classifier.") and key.endswith(".weight"):
+            return state_dict[key].shape[0]
+    return NUM_CLASSES
+
+
 def _load_model() -> MultiModalBiometricModel:
     """Load the trained model from the best checkpoint."""
-    model = MultiModalBiometricModel(num_classes=NUM_CLASSES, fusion_strategy="attention")
     ckpt_path = Path(CHECKPOINT_PATH)
 
     if ckpt_path.exists():
         ckpt = torch.load(ckpt_path, map_location=DEVICE, weights_only=True)
-        model.load_state_dict(ckpt["model_state_dict"])
-        logger.info("Loaded model from %s", ckpt_path)
+        sd = ckpt["model_state_dict"]
+        # Use saved config if available, otherwise detect from state_dict keys
+        model_cfg = ckpt.get("model_config", {})
+        backbone = model_cfg.get("backbone", _detect_backbone(sd))
+        fusion_strategy = model_cfg.get("fusion_strategy", _detect_fusion_strategy(sd))
+        num_classes = model_cfg.get("num_classes", _detect_num_classes(sd, fusion_strategy))
+
+        model = MultiModalBiometricModel(
+            num_classes=num_classes,
+            fusion_strategy=fusion_strategy,
+            iris_backbone=backbone,
+            fp_backbone=backbone,
+        )
+        model.load_state_dict(sd)
+        logger.info(
+            "Loaded model from %s (backbone=%s, fusion=%s)", ckpt_path, backbone, fusion_strategy
+        )
     else:
         logger.warning("No checkpoint found at %s — using untrained model", ckpt_path)
+        model = MultiModalBiometricModel(num_classes=NUM_CLASSES, fusion_strategy="attention")
 
     model.to(DEVICE)
     model.eval()

@@ -179,13 +179,16 @@ export KAGGLE_API_TOKEN=<your-token>
 uv run python train.py
 
 # Override config values
-uv run python train.py training.epochs=10 training.batch_size=16 training.device=cpu
+uv run python train.py data.kaggle.enabled=true training.epochs=10 training.batch_size=16 training.device=cpu
 
 # Use concat fusion instead
 uv run python train.py model.fusion.strategy=concat
 
 # Use ResNet18 backbone
 uv run python train.py model.iris_encoder.backbone=resnet18 model.fingerprint_encoder.backbone=resnet18
+
+# Final can be like below
+uv run python train.py data.kaggle.enabled=true training.epochs=10 training.batch_size=16 training.device=cpu model.fusion.strategy=concat model.iris_encoder.backbone=resnet18 model.fingerprint_encoder.backbone=resnet18
 ```
 
 ### Monitoring
@@ -193,6 +196,7 @@ uv run python train.py model.iris_encoder.backbone=resnet18 model.fingerprint_en
 ```bash
 uv run tensorboard --logdir runs/
 ```
+![TensorBoard](screenshots/Tensorboard.jpg)
 
 ### Inference & Visualization
 
@@ -222,14 +226,18 @@ This opens a web UI at **http://localhost:7860** in your browser.
 - Upload an iris scan image (`.bmp`, `.jpg`, `.png`)
 - Upload a fingerprint scan image (`.bmp`, `.jpg`, `.png`)
 
+![Interactive UI : To Upload files](screenshots/UI_Prediction_1.jpg)
+
 **Output:** Top-5 predicted identities ranked by confidence score.
+
+![Interactive UI : Predicted Result](screenshots/UI_Prediction_2.jpg)
 
 > The demo loads `checkpoints/best_model.pt` automatically. Train the model first or use a pre-existing checkpoint.
 
 ### Testing
 
 ```bash
-uv run pytest tests/ -v   # 47 tests
+uv run pytest tests/ -v
 ```
 
 ### Linting & Formatting

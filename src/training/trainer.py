@@ -116,12 +116,25 @@ class Trainer:
         """Save model checkpoint."""
         name = filename or f"checkpoint_epoch_{epoch}.pt"
         path = self.checkpoint_dir / name
+        # Extract model config for reproducible loading
+        model_config = {}
+        if hasattr(self.model, "iris_encoder"):
+            encoder = self.model.iris_encoder
+            model_config["backbone"] = "resnet18" if hasattr(encoder, "base") else "simple_cnn"
+        if hasattr(self.model, "fusion"):
+            fusion = self.model.fusion
+            model_config["fusion_strategy"] = "attention" if hasattr(fusion, "gate") else "concat"
+            if hasattr(fusion, "classifier"):
+                last_layer = list(fusion.classifier.children())[-1]
+                if hasattr(last_layer, "out_features"):
+                    model_config["num_classes"] = last_layer.out_features
         torch.save(
             {
                 "epoch": epoch,
                 "model_state_dict": self.model.state_dict(),
                 "optimizer_state_dict": self.optimizer.state_dict(),
                 "metrics": metrics,
+                "model_config": model_config,
             },
             path,
         )
