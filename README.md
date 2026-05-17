@@ -186,12 +186,15 @@ uv run python train.py model.fusion.strategy=concat
 
 # Use ResNet18 backbone
 uv run python train.py model.iris_encoder.backbone=resnet18 model.fingerprint_encoder.backbone=resnet18
+
+# Complete can be like below
+uv run python train.py data.kaggle.enabled=true training.epochs=10 training.batch_size=16 training.device=cpu model.fusion.strategy=concat model.iris_encoder.backbone=resnet18 model.fingerprint_encoder.backbone=resnet18
 ```
 
 ### Monitoring
 
 ```bash
-tensorboard --logdir runs/
+uv run tensorboard --logdir runs/
 ```
 ![TensorBoard](screenshots/Tensorboard.jpg)
 
