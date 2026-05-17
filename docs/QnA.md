@@ -1,4 +1,4 @@
-# Questions & Answers — Multimodal Biometric Pipeline
+# Questions & Answers - Multimodal Biometric Pipeline
 
 A comprehensive Q&A covering the design, implementation, and reasoning behind every component of this system.
 
@@ -8,7 +8,7 @@ A comprehensive Q&A covering the design, implementation, and reasoning behind ev
 
 ### Q1: Why did you choose this specific project structure?
 
-**A**: The structure separates concerns into clear domains: `data/` handles all data pipeline concerns (dataset abstraction, transforms, preprocessing, caching, loaders), `models/` contains neural network components, `training/` manages the training loop and reproducibility, and `inference/` handles prediction. This mirrors how production ML systems are organized — each module can be developed, tested, and scaled independently.
+**A**: The structure separates concerns into clear domains: `data/` handles all data pipeline concerns (dataset abstraction, transforms, preprocessing, caching, loaders), `models/` contains neural network components, `training/` manages the training loop and reproducibility, and `inference/` handles prediction. This mirrors how production ML systems are organized - each module can be developed, tested, and scaled independently.
 
 ### Q2: How does the data flow through your system?
 
@@ -23,7 +23,7 @@ A comprehensive Q&A covering the design, implementation, and reasoning behind ev
 ### Q3: How would this scale to 100x the data?
 
 **A**: 
-- **Preprocessing**: Ray scales horizontally — add more nodes to the cluster, no code changes needed.
+- **Preprocessing**: Ray scales horizontally - add more nodes to the cluster, no code changes needed.
 - **Metadata**: PyArrow metadata tables avoid filesystem re-scans; the Parquet cache persists across runs.
 - **DataLoader**: Increase `num_workers` and `prefetch_factor` to keep GPUs saturated.
 - **Storage**: Move data to Azure Blob Storage with local SSD caching for hot data.
@@ -44,7 +44,7 @@ A comprehensive Q&A covering the design, implementation, and reasoning behind ev
 
 ### Q5: How do you handle configuration management?
 
-**A**: Hydra with composable YAML configs. The main config (`train.yaml`) imports data and model sub-configs. All parameters are externalized — no hardcoded values in source code. CLI overrides (`python train.py training.epochs=5`) enable quick experimentation without editing files.
+**A**: Hydra with composable YAML configs. The main config (`train.yaml`) imports data and model sub-configs. All parameters are externalized - no hardcoded values in source code. CLI overrides (`python train.py training.epochs=5`) enable quick experimentation without editing files.
 
 ### Q6: How do you ensure code quality?
 
@@ -87,14 +87,14 @@ No unnecessary dependencies. All versions are pinned with minimum bounds for rep
 - Trains fast for rapid iteration
 - Can be replaced with ResNet/ViT with a single config change
 
-The infrastructure handles any `nn.Module` — the backbone is the most easily swappable component.
+The infrastructure handles any `nn.Module` - the backbone is the most easily swappable component.
 
 ### Q10: How does the multimodal fusion work?
 
 **A**: Two strategies are available, selectable via config:
 
 1. **Concatenation** (`model.fusion.strategy=concat`): Concatenates iris + fingerprint embeddings, classifies via 2-layer MLP. Simple baseline.
-2. **Gated Attention** (`model.fusion.strategy=attention`, default): A learned gate network takes both embeddings as input and outputs a 2-element softmax weight vector. The fused representation is `w_iris * proj(iris_emb) + w_fp * proj(fp_emb)`. This lets the model dynamically weight modalities per sample — e.g., relying more on fingerprint when the iris image is low quality.
+2. **Gated Attention** (`model.fusion.strategy=attention`, default): A learned gate network takes both embeddings as input and outputs a 2-element softmax weight vector. The fused representation is `w_iris * proj(iris_emb) + w_fp * proj(fp_emb)`. This lets the model dynamically weight modalities per sample - e.g., relying more on fingerprint when the iris image is low quality.
 
 Both are registered in `_FUSION_REGISTRY` and instantiated by `build_fusion()`, making it trivial to add new strategies.
 
@@ -112,9 +112,9 @@ Combined with Hydra config snapshots, every experiment can be exactly reproduced
 ### Q12: What loss function and optimizer did you choose and why?
 
 **A**: 
-- **Loss**: `CrossEntropyLoss` — standard for multi-class classification (45 person IDs)
-- **Optimizer**: `Adam` with weight decay — good default that works well without extensive tuning
-- **LR Scheduler**: `CosineAnnealingLR` — smooth decay from initial LR to 1e-6 over training, avoiding learning rate cliffs
+- **Loss**: `CrossEntropyLoss` - standard for multi-class classification (45 person IDs)
+- **Optimizer**: `Adam` with weight decay - good default that works well without extensive tuning
+- **LR Scheduler**: `CosineAnnealingLR` - smooth decay from initial LR to 1e-6 over training, avoiding learning rate cliffs
 - These are configurable via Hydra, so switching to SGD+momentum or label smoothing requires only a config change.
 
 ---
@@ -123,7 +123,7 @@ Combined with Hydra config snapshots, every experiment can be exactly reproduced
 
 ### Q13: How does the dataset handle the multimodal pairing?
 
-**A**: For each person, the dataset collects all iris images (from both left and right eye directories) and all fingerprint images. It then creates pairs by cycling through the shorter list — e.g., if a person has 10 iris images and 10 fingerprints, it creates 10 pairs. This maximizes data utilization.
+**A**: For each person, the dataset collects all iris images (from both left and right eye directories) and all fingerprint images. It then creates pairs by cycling through the shorter list - e.g., if a person has 10 iris images and 10 fingerprints, it creates 10 pairs. This maximizes data utilization.
 
 ### Q14: Why lazy loading instead of pre-loading all images?
 
@@ -157,7 +157,7 @@ Augmentation is intentionally mild because biometric features (iris patterns, fi
 - `pin_memory=True`: Allocates tensors in page-locked memory, enabling faster DMA transfers to GPU (~10-20% speedup)
 - `persistent_workers=True`: Keeps worker processes alive between epochs, avoiding re-initialization overhead
 - `prefetch_factor=2`: Each worker prefetches 2 batches ahead, overlapping I/O with computation
-- `num_workers=4`: Parallel data loading — 4 is a good default for most workstations
+- `num_workers=4`: Parallel data loading - 4 is a good default for most workstations
 - `drop_last=True` (train only): Prevents a small final batch from destabilizing BatchNorm statistics
 
 ### Q18: What are the main performance bottlenecks?
@@ -172,7 +172,7 @@ Augmentation is intentionally mild because biometric features (iris patterns, fi
 
 **A**: For this dataset (~1081 images), Ray provides ~2-3x speedup. The improvement is limited by Ray's initialization overhead (~2-3s). For production datasets with 100k+ images, speedup approaches the number of Ray workers (near-linear scaling).
 
-The `benchmark_preprocessing()` function measures both approaches and reports timing — this demonstrates performance awareness without over-optimizing.
+The `benchmark_preprocessing()` function measures both approaches and reports timing - this demonstrates performance awareness without over-optimizing.
 
 ---
 
@@ -263,9 +263,9 @@ The modular architecture makes this a configuration change, not a redesign.
 
 **A**: Two things:
 
-1. **The gated attention fusion** — it's a simple but principled design that learns per-sample modality importance. The ROC-AUC of 0.92 and EER of 0.17 on only 450 samples validate the approach.
+1. **The gated attention fusion** - it's a simple but principled design that learns per-sample modality importance. The ROC-AUC of 0.92 and EER of 0.17 on only 450 samples validate the approach.
 
-2. **The complete training pipeline** — TensorBoard logging, cosine LR scheduling, early stopping with best-model tracking, mixed precision, biometric-standard metrics (EER, ROC-AUC), and Grad-CAM explainability. Each piece is simple, but together they form a production-grade system.
+2. **The complete training pipeline** - TensorBoard logging, cosine LR scheduling, early stopping with best-model tracking, mixed precision, biometric-standard metrics (EER, ROC-AUC), and Grad-CAM explainability. Each piece is simple, but together they form a production-grade system.
 
 ### Q29: How would you onboard a new team member to this codebase?
 

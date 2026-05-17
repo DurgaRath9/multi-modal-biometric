@@ -31,7 +31,7 @@ def compute_top_k_accuracy(logits: torch.Tensor, labels: torch.Tensor, k: int = 
 
 
 def compute_eer(probs: np.ndarray, labels: np.ndarray) -> float:
-    """Compute Equal Error Rate (EER) — the standard biometric metric.
+    """Compute Equal Error Rate (EER) - the standard biometric metric.
 
     EER is the point where False Acceptance Rate equals False Rejection Rate.
     Lower is better.
