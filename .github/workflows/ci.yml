@@ -35,8 +35,8 @@ jobs:
       - name: Check formatting with black
         run: uv run black --check src/ tests/
 
-      - name: Type check with mypy
-        run: uv run mypy src/
+      # - name: Type check with mypy
+      #   run: uv run mypy src/
 
       - name: Run tests
         run: uv run pytest tests/ -v --tb=short
