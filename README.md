@@ -1,25 +1,25 @@
 # Scalable Multimodal Biometric Recognition Pipeline
 
-A production-ready ML infrastructure for iris + fingerprint biometric recognition, built with a focus on **scalability**, **reproducibility**, and **engineering quality**.
+A production-ready Machine Learning (ML) infrastructure for iris + fingerprint biometric recognition, built with a focus on **scalability** and **reproducibility**.
 
 ## Overview
 
-A scalable multimodal training pipeline for biometric recognition (iris + fingerprint) with production-quality Python engineering, efficient data handling, and MLOps best practices.
+A multimodal training pipeline for biometric recognition (iris + fingerprint).
 
-Dataset: [Multimodal Iris & Fingerprint Biometric Data](https://www.kaggle.com/datasets/ninadmehendale/multimodal-iris-fingerprint-biometric-data) - 45 subjects, 900 images across iris scans (left/right eye) and fingerprint scans.
+Dataset: [Multimodal Iris & Fingerprint Biometric Data](https://www.kaggle.com/datasets/ninadmehendale/multimodal-iris-fingerprint-biometric-data) - 45 subjects.
 
 ## Training Results
 
-> Trained with gated attention fusion, cosine annealing LR, seed=42, 20 epochs on CPU.
+> Trained with gated attention fusion, cosine annealing Learning Rate (LR), seed=42, 20 epochs on CPU.
 
 | Metric | Value |
 |--------|-------|
 | **Top-1 Accuracy** | 34.4% |
 | **Top-5 Accuracy** | 73.3% |
-| **ROC-AUC (macro)** | **0.919** |
-| **EER (Equal Error Rate)** | **0.169** |
+| **Receiver Operating Characteristic - Area Under the Curve (ROC-AUC) macro** | **0.919** |
+| **Equal Error Rate (EER)** | **0.169** |
 | **F1-Score (macro)** | 0.274 |
-| **Training Time** | 136s (CPU) |
+| **Training Time** | 136s on CPU |
 
 ### Training Progression
 
@@ -33,13 +33,8 @@ Epoch  Train Loss  Val Loss  Top1    Top5    ROC-AUC   EER
  20      1.869      2.352   34.4%   73.3%    0.919     0.169
 ```
 
-> **Note**: Top-1 accuracy is modest due to 45-class classification with only ~8 train samples per class. The high ROC-AUC (0.92) and low EER (0.17) confirm the model discriminates well between identities - the biometric-standard metrics that matter.
+> **Note**: Top-1 accuracy is modest due to 45-class classification with only ~8 train samples per class. The high Receiver Operating Characteristic - Area Under the Curve (ROC-AUC) (0.92) and low Equal Error Rate (EER) (0.17) confirm the model discriminates well between identities - the biometric-standard metrics that matter.
 
-### TensorBoard
-
-```bash
-tensorboard --logdir runs/
-```
 
 ## Architecture
 
@@ -63,19 +58,6 @@ flowchart TD
     FPEnc --> Fusion
     Fusion --> Clf --> Metrics
 ```
-
-## Key Features
-
-- **Gated Attention Fusion** - Learns per-sample modality importance instead of treating iris and fingerprint equally. Configurable: `model.fusion.strategy=attention|concat`
-- **Biometric-Standard Metrics** - EER (Equal Error Rate), ROC-AUC, Top-5 accuracy, F1-macro, confusion matrix
-- **Mixed Precision Training (AMP)** - `torch.amp` for 2x throughput on GPU
-- **Cosine Annealing LR** - Smooth learning rate decay for better convergence
-- **Early Stopping** - Tracks best validation loss, saves `best_model.pt`, stops after N epochs without improvement
-- **TensorBoard Logging** - Loss curves, accuracy, F1, AUC, EER, LR per epoch
-- **Grad-CAM Explainability** - Visualize which image regions drive predictions
-- **Arrow Metadata Cache** - PyArrow-based metadata table persisted as Parquet for fast dataset introspection
-- **Ray Parallel Preprocessing** - Scales from laptop to cluster; graceful fallback to sequential
-- **Interactive Demo** - Gradio app for live inference
 
 ## Project Structure
 
@@ -226,7 +208,11 @@ This opens a web UI at **http://localhost:7860** in your browser.
 - Upload an iris scan image (`.bmp`, `.jpg`, `.png`)
 - Upload a fingerprint scan image (`.bmp`, `.jpg`, `.png`)
 
+![Interactive UI : To Upload files](screenshots/UI_Prediction_1.jpg)
+
 **Output:** Top-5 predicted identities ranked by confidence score.
+
+![Interactive UI : Predicted Result](screenshots/UI_Prediction_2.jpg)
 
 > The demo loads `checkpoints/best_model.pt` automatically. Train the model first or use a pre-existing checkpoint.
 
@@ -254,10 +240,10 @@ docker run -v $(pwd)/data:/app/data biometric-pipeline
 | Decision | Rationale |
 |----------|-----------|
 | **Gated Attention Fusion** | Learns per-sample modality weights; outperforms naive concatenation. Registry supports swapping strategies via config |
-| **EER + ROC-AUC metrics** | Industry-standard biometric evaluation; accuracy alone is insufficient for identity verification |
-| **Cosine Annealing LR** | Smooth decay avoids learning rate cliffs; better convergence than step decay |
+| **Equal Error Rate (EER) + Receiver Operating Characteristic - Area Under the Curve (ROC-AUC) metrics** | Industry-standard biometric evaluation; accuracy alone is insufficient for identity verification |
+| **Cosine Annealing Learning Rate (LR)** | Smooth decay avoids learning rate cliffs; better convergence than step decay |
 | **Early stopping + best model** | Prevents overfitting; always keeps the best checkpoint available |
-| **Mixed precision (AMP)** | Near-free 2x throughput on GPU; auto-disabled on CPU |
+| **Automatic Mixed Precision (AMP)** | Near-free 2x throughput on GPU; auto-disabled on CPU |
 | **TensorBoard logging** | Zero-dependency visualization (bundled with PyTorch); loss, metrics, LR per epoch |
 | **Hydra for config** | Composable YAML configs, CLI overrides, no hardcoded values |
 | **Ray for preprocessing** | Scales from local to cluster; graceful fallback to sequential |
@@ -268,7 +254,7 @@ docker run -v $(pwd)/data:/app/data biometric-pipeline
 ## Scalability Considerations
 
 - **Dataset 100x larger**: Ray preprocessing scales horizontally across nodes. Arrow cache avoids filesystem scans. DataLoader `num_workers` and `prefetch_factor` keep GPUs fed.
-- **Azure Blob Storage**: Replace local paths with `azure-storage-blob` SDK reads. Cache preprocessed data locally or on fast NVMe to avoid network bottleneck.
+- **Azure Blob Storage**: Replace local paths with `azure-storage-blob` SDK reads. Cache preprocessed data locally or on fast Non-Volatile Memory Express (NVMe) to avoid network bottleneck.
 - **Multi-GPU**: Wrap model with `DistributedDataParallel`, use `DistributedSampler` in DataLoader.
 - **Kubernetes**: Docker container is deployment-ready. Scale training pods with GPU scheduling. Use persistent volumes for data and checkpoints.
 
@@ -276,6 +262,5 @@ docker run -v $(pwd)/data:/app/data biometric-pipeline
 
 - MLflow experiment tracking
 - `torch.profiler` integration for GPU bottleneck analysis
-- Model compression for edge deployment (QNN boards)
-- Dataset versioning (DVC)
+- Dataset versioning with Data Version Control (DVC)
 - Hyperparameter sweep with Hydra multi-run
